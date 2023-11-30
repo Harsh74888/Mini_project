@@ -15,21 +15,20 @@ class TimetableGenerator:
                 professors_list = list(self.professors.keys())
                 random.shuffle(professors_list)
                 for professor in professors_list:
-                    if not ("1:00 PM - 2:00 PM" in time_slot and "Lunch" not in self.professors[professor]):
-                        subjects = self.professors[professor]
-                        subject = self.get_subject_for_professor(professor, subjects)
-                        room = self.get_available_room(day, time_slot, subject)
-                        if room:
-                            key = (day, time_slot)
-                            self.timetable[key] = (day, subject, professor, room)
+                    subjects = self.professors[professor]
+                    subject = self.get_subject_for_professor(professor, subjects)
+                    room = self.get_available_room(day, time_slot, subject)
+                    if room:
+                        key = (day, time_slot)
+                        self.timetable[key] = (day, subject, professor, room)
 
     def get_subject_for_professor(self, professor, subjects):
-        if professor == "Nemi sir" and "Python" in subjects:
-            return "Python"
+        if professor == "Nemi sir":
+            return "Python" if "Python" in subjects else random.choice(subjects)
         return random.choice(subjects)
 
     def get_available_room(self, day, time_slot, subject):
-        if subject.startswith("Lab"):
+        if subject == "Python":
             available_rooms = self.laboratories
         else:
             available_rooms = self.classrooms
