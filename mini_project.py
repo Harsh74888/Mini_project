@@ -16,16 +16,14 @@ class TimetableGenerator:
                 random.shuffle(professors_list)
                 for professor in professors_list:
                     subjects = self.professors[professor]
-                    subject = self.get_subject_for_professor(professor, subjects)
+                    subject = self.get_subject_for_professor(subjects)
                     room = self.get_available_room(day, time_slot, subject)
                     if room:
                         key = (day, time_slot)
                         self.timetable[key] = (day, subject, professor, room)
 
-    def get_subject_for_professor(self, professor, subjects):
-        if professor == "Nemi sir":
-            return "Python" if "Python" in subjects else random.choice(subjects)
-        return random.choice(subjects)
+    def get_subject_for_professor(self, subjects):
+        return next((s for s in subjects if s.lower() == "python"), random.choice(subjects))
 
     def get_available_room(self, day, time_slot, subject):
         if subject == "Python":
@@ -46,22 +44,35 @@ class TimetableGenerator:
                 key = (day, time_slot)
                 if key in self.timetable:
                     _, subject, professor, room = self.timetable[key]
-                    print(f"{time_slot}: Professor {professor} - Subject {subject} - Room {room}")
+                    if time_slot == "1:00 PM - 2:00 PM":
+                        print(f"Lunch Break: 1:00 PM - 2:00 PM")
+                    else:
+                        print(f"{time_slot}: Professor {professor} - Subject {subject} - Room {room}")
+
+def get_user_input(prompt, input_type=str):
+    while True:
+        try:
+            user_input = input(prompt)
+            return input_type(user_input)
+        except ValueError:
+            print("Invalid input. Please enter a valid value.")
+
+# Get user input for professors
+professors = {}
+while True:
+    professor_name = get_user_input("Enter professor name (or 'done' to finish): ")
+    if professor_name.lower() == 'done':
+        break
+    subjects = get_user_input("Enter subjects for the professor (comma-separated): ", input_type=lambda x: x.split(','))
+    professors[professor_name] = subjects
+
+# Get user input for classrooms, laboratories, days_of_week, and time_slots
+classrooms = get_user_input("Enter classrooms (comma-separated): ", input_type=lambda x: x.split(','))
+laboratories = get_user_input("Enter laboratories (comma-separated): ", input_type=lambda x: x.split(','))
+days_of_week = get_user_input("Enter days of week (comma-separated): ", input_type=lambda x: x.split(','))
+time_slots = get_user_input("Enter time slots (comma-separated): ", input_type=lambda x: x.split(','))
 
 # Example usage
-professors = {
-    "Nemi sir": ["Python", "IKS"],
-    "Piyush sir": ["HVPE", "AI", "Maths"],
-    "Jaynath sir": ["DAA"]
-}
-
-classrooms = ["218", "219"]
-laboratories = ["Lab1"]
-
-days_of_week = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"]
-time_slots = ["10:00 AM - 11:00 AM", "11:00 AM - 12:00 PM", "12:00 PM - 1:00 PM",
-              "1:00 PM - 2:00 PM", "2:00 PM - 3:00 PM", "3:00 PM - 4:00 PM"]
-
 generator = TimetableGenerator(professors, classrooms, laboratories, days_of_week, time_slots)
 generator.generate_timetable()
 generator.display_timetable()
