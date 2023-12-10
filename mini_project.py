@@ -36,18 +36,26 @@ class TimetableGenerator:
 
         return random.choice(available_rooms) if available_rooms else None
 
-    def display_timetable(self):
-        print("Complete Timetable:")
+    def display_timetable(self, file_path=None):
+        if file_path:
+            with open(file_path, 'w') as file:
+                self._print_timetable(file)
+        else:
+            self._print_timetable()
+
+    def _print_timetable(self, file=None):
+        print("Complete Timetable:", file=file)
         for day in self.days_of_week:
-            print(f"\n{day}:")
+            print(f"\n{day}:", file=file)
+            print("{:<20} {:<20} {:<20} {:<20}".format("Time Slot", "Professor", "Subject", "Room"), file=file)
             for time_slot in self.time_slots:
                 key = (day, time_slot)
                 if key in self.timetable:
                     _, subject, professor, room = self.timetable[key]
-                    if time_slot == "1:00 PM - 2:00 PM":
-                        print(f"Lunch Break: 1:00 PM - 2:00 PM")
+                    if time_slot == "1:00pm-2:00pm":
+                        print("{:<20} {:<20} {:<20} {:<20}".format("Lunch Break", "", "", ""), file=file)
                     else:
-                        print(f"{time_slot}: Professor {professor} - Subject {subject} - Room {room}")
+                        print("{:<20} {:<20} {:<20} {:<20}".format(time_slot, professor, subject, room), file=file)
 
 def get_user_input(prompt, input_type=str):
     while True:
@@ -57,7 +65,7 @@ def get_user_input(prompt, input_type=str):
         except ValueError:
             print("Invalid input. Please enter a valid value.")
 
-# Get user input for professors
+
 professors = {}
 while True:
     professor_name = get_user_input("Enter professor name (or 'done' to finish): ")
@@ -66,13 +74,15 @@ while True:
     subjects = get_user_input("Enter subjects for the professor (comma-separated): ", input_type=lambda x: x.split(','))
     professors[professor_name] = subjects
 
-# Get user input for classrooms, laboratories, days_of_week, and time_slots
 classrooms = get_user_input("Enter classrooms (comma-separated): ", input_type=lambda x: x.split(','))
 laboratories = get_user_input("Enter laboratories (comma-separated): ", input_type=lambda x: x.split(','))
 days_of_week = get_user_input("Enter days of week (comma-separated): ", input_type=lambda x: x.split(','))
 time_slots = get_user_input("Enter time slots (comma-separated): ", input_type=lambda x: x.split(','))
 
-# Example usage
+
+output_file_path = get_user_input("Enter the output file path (or leave empty for console output): ")
+
+
 generator = TimetableGenerator(professors, classrooms, laboratories, days_of_week, time_slots)
 generator.generate_timetable()
-generator.display_timetable()
+generator.display_timetable(file_path=output_file_path)
